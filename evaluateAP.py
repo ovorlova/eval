@@ -35,7 +35,7 @@ def computeMetrics(scoresAll, labelsAll, nGTall):
     return apAll, preAll, recAll
 
 
-def evaluateAP(gtFramesAll, prFramesAll, outputDir, bSaveAll=True, bSaveSeq=False):
+def evaluateAP(gtFramesAll, prFramesAll, outputDir='', bSaveAll=False, bSaveSeq=False):
 
     distThresh = 0.5
 
