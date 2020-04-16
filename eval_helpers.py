@@ -5,6 +5,7 @@ import os
 import json
 import glob
 from convert import convert_videos
+import json
 
 MIN_SCORE = -9999
 MAX_TRACK_ID = 10000
@@ -295,12 +296,12 @@ def cleanupData(gtFramesAll,prFramesAll):
     if (len(gtFramesAll[imgidx]["annorect"]) > 0):
       imgidxs += [imgidx]
   gtFramesAll = [gtFramesAll[imgidx] for imgidx in imgidxs]
-  prFramesAll = [prFramesAll[imgidx] for imgidx in imgidxs]
+  #prFramesAll = [prFramesAll[imgidx] for imgidx in imgidxs]
 
   # remove all gt rectangles that do not have annotations
   for imgidx in range(len(gtFramesAll)):
     gtFramesAll[imgidx]["annorect"] = removeRectsWithoutPoints(gtFramesAll[imgidx]["annorect"])
-    prFramesAll[imgidx]["annorect"] = removeRectsWithoutPoints(prFramesAll[imgidx]["annorect"])
+    #prFramesAll[imgidx]["annorect"] = removeRectsWithoutPoints(prFramesAll[imgidx]["annorect"])
 
   return gtFramesAll, prFramesAll
 
@@ -388,14 +389,7 @@ def load_data_dir(argv):
     if (not "annolist" in data):
         data = convert_videos(data)[0]
     gt = data["annolist"]
-    for imgidx in range(len(gt)):
-        gt[imgidx]["seq_id"] = i
-        gt[imgidx]["seq_name"] = os.path.basename(filenames[i]).split('.')[0]
-        #for ridxGT in range(len(gt[imgidx]["annorect"])):
-          #  if ("track_id" in gt[imgidx]["annorect"][ridxGT].keys()):
-          #      # adjust track_ids to make them unique across all sequences
-          #      assert(gt[imgidx]["annorect"][ridxGT]["track_id"][0] < MAX_TRACK_ID)
-          #      gt[imgidx]["annorect"][ridxGT]["track_id"][0] += i*MAX_TRACK_ID
+    
     gtFramesAll += gt
     gtBasename = os.path.basename(filenames[i+1])
     predFilename = pred_dir + gtBasename
@@ -411,18 +405,7 @@ def load_data_dir(argv):
     pr = data["annolist"]
     if (len(pr) != len(gt)):
         raise Exception('# prediction frames %d <> # GT frames %d for %s' % (len(pr),len(gt),predFilename))
-    for imgidx in range(len(pr)):
-        track_id_frame = []
-       # for ridxPr in range(len(pr[imgidx]["annorect"])):
-           # if ("track_id" in pr[imgidx]["annorect"][ridxPr].keys()):
-           #     track_id = pr[imgidx]["annorect"][ridxPr]["track_id"][0]
-           #     track_id_frame += [track_id]
-           #     # adjust track_ids to make them unique across all sequences
-           #     assert(track_id < MAX_TRACK_ID)
-           #     pr[imgidx]["annorect"][ridxPr]["track_id"][0] += i*MAX_TRACK_ID
-      #  track_id_frame_unique = np.unique(np.array(track_id_frame)).tolist()
-      #  if (len(track_id_frame) != len(track_id_frame_unique)):
-      #      raise Exception('Non-unique tracklet IDs found in frame %s of prediction %s' % (pr[imgidx]["image"][0]["name"],predFilename))
+    
     prFramesAll += pr
 
   gtFramesAll,prFramesAll = cleanupData(gtFramesAll,prFramesAll)
@@ -430,6 +413,31 @@ def load_data_dir(argv):
   gtFramesAll,prFramesAll = removeIgnoredPoints(gtFramesAll,prFramesAll)
 
   return gtFramesAll, prFramesAll
+
+def loadGTFrames(path, filename):
+
+  gtFramesAll = []
+
+  with open(path+filename) as data_file:
+    data = json.load(data_file)
+  gt = data["annolist"]
+ 
+  for imgidx in range(len(gt)):
+    gt[imgidx]["seq_id"] = 1
+   # gt[imgidx]["seq_name"] = os.path.basename(filenames[i]).split('.')[0]
+        #for ridxGT in range(len(gt[imgidx]["annorect"])):
+          #  if ("track_id" in gt[imgidx]["annorect"][ridxGT].keys()):
+          #      # adjust track_ids to make them unique across all sequences
+          #      assert(gt[imgidx]["annorect"][ridxGT]["track_id"][0] < MAX_TRACK_ID)
+          #      gt[imgidx]["annorect"][ridxGT]["track_id"][0] += i*MAX_TRACK_ID
+
+  gtFramesAll += gt
+  
+  #gtFramesAll,_ = cleanupData(gtFramesAll,[])
+
+  gtFramesAll,_ = removeIgnoredPoints(gtFramesAll,[])
+
+  return gtFramesAll
 
 
 def writeJson(val,fname):
@@ -653,3 +661,80 @@ def assignGTmulti(gtFrames, prFrames, distThresh):
         motAll[imgidx] = mot
 
     return scoresAll, labelsAll, nGTall, motAll
+def load_():
+  gtFramesAll = []
+  prFramesAll = []
+
+  for i in range(1):
+    # load each annotation json file
+    with open(filenames[i]) as data_file:
+        data = json.load(data_file)
+    if (not "annolist" in data):
+        data = convert_videos(data)[0]
+    gt = data["annolist"]
+    for imgidx in range(len(gt)):
+        gt[imgidx]["seq_id"] = i
+        gt[imgidx]["seq_name"] = os.path.basename(filenames[i]).split('.')[0]
+        #for ridxGT in range(len(gt[imgidx]["annorect"])):
+          #  if ("track_id" in gt[imgidx]["annorect"][ridxGT].keys()):
+          #      # adjust track_ids to make them unique across all sequences
+          #      assert(gt[imgidx]["annorect"][ridxGT]["track_id"][0] < MAX_TRACK_ID)
+          #      gt[imgidx]["annorect"][ridxGT]["track_id"][0] += i*MAX_TRACK_ID
+    gtFramesAll += gt
+    gtBasename = os.path.basename(filenames[i+1])
+    predFilename = pred_dir + gtBasename
+
+    if (not os.path.exists(predFilename)):
+        raise IOError('Prediction file ' + predFilename + ' does not exist')
+
+    # load predictions
+    with open(predFilename) as data_file:
+        data = json.load(data_file)
+    if (not "annolist" in data):
+        data = convert_videos(data)[0]
+    pr = data["annolist"]
+    if (len(pr) != len(gt)):
+        raise Exception('# prediction frames %d <> # GT frames %d for %s' % (len(pr),len(gt),predFilename))
+    for imgidx in range(len(pr)):
+        track_id_frame = []
+       # for ridxPr in range(len(pr[imgidx]["annorect"])):
+           # if ("track_id" in pr[imgidx]["annorect"][ridxPr].keys()):
+           #     track_id = pr[imgidx]["annorect"][ridxPr]["track_id"][0]
+           #     track_id_frame += [track_id]
+           #     # adjust track_ids to make them unique across all sequences
+           #     assert(track_id < MAX_TRACK_ID)
+           #     pr[imgidx]["annorect"][ridxPr]["track_id"][0] += i*MAX_TRACK_ID
+      #  track_id_frame_unique = np.unique(np.array(track_id_frame)).tolist()
+      #  if (len(track_id_frame) != len(track_id_frame_unique)):
+      #      raise Exception('Non-unique tracklet IDs found in frame %s of prediction %s' % (pr[imgidx]["image"][0]["name"],predFilename))
+    prFramesAll += pr
+
+  gtFramesAll,prFramesAll = cleanupData(gtFramesAll,prFramesAll)
+
+  gtFramesAll,prFramesAll = removeIgnoredPoints(gtFramesAll,prFramesAll)
+
+  return gtFramesAll, prFramesAll
+def evaluate(exp_id):
+  #convert
+  inds = json.load(open('inds.json'))
+  data = json.load(open(exp_id +'/results.json'))
+  dct_image_id = {}
+  for i in range(len(data)):
+    img_id = str(data[i]['image_id'])
+    if inds[img_id] not in dct_image_id:
+        dct_image_id[inds[img_id]] = []
+    lst = []
+    center_score = data[i]['score']
+    for key in range(16):
+        _id = key
+        x = data[i]['keypoints'][key*3]
+        y = data[i]['keypoints'][key*3+1]
+        score = data[i]['keypoints'][key*3+2]
+        lst.append({'id': [_id], 'x': [x], 'y': [y], 'score' : [score]})
+    (dct_image_id[inds[img_id]]).append({'score': [center_score], 'annopoints' : [{"point": lst}]})
+  final_lst = []
+  for key in dct_image_id:
+    final_lst.append({'image' : [{'name' : key}], 'annorect' : dct_image_id[key]})
+  final_dct = {'annolist' : final_lst}
+  with open('new_results.json', 'w') as f:
+    json.dump(final_dct, f)
