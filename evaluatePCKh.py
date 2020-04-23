@@ -72,9 +72,6 @@ def evaluatePCKh(gtFramesAll,prFramesAll):
 
     # compute PCK metric
     pckAll = computePCK(distAll,distThresh)
-    names = ['right_ankle', 'right_knee', 'right_hip', 'left_hip', 'left_knee', 'left_ankle', 'pelvis', 'throax', 'upper_neck', 'head_top', 'right_wrist', 'right_elbow', 'right_shoulder', 'left_shoulder', 'left_elbow', 'left_wrist', 'total']
-    pck = {}
-    for i in range(len(names)):
-      pck[names[i]] = pckAll[i][0]
-    return pck
+    
+    return pckAll
 
