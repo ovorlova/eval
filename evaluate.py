@@ -24,6 +24,23 @@ def parseArgs():
     return parser.parse_args()
 
 
+def pseudo_eval(gtFramesSingle, prFramesAll, gtMulti, prMulti):
+  print("# gt frames  :", len(gtFramesAll))
+  print("# pred frames:", len(prFramesAll))
+
+  print("Evaluation of per-frame multi-person pose estimation... (multi preds)")
+  apMultiAll,preAll,recAll = evaluateAP(gtMulti, prMulti)
+  apMulti = turnToAPDict(apMultiAll)
+  printResults(apMulti)
+  
+  print('Evaluation of PCKh@0.5...')
+  prFrames = assign(gtFramesSingle, prFramesAll, 0.5)
+  pckh = evaluatePCKh(gtFramesSingle, prFrames)
+  pckh = turnToPCKhDict(pckh)
+  printResults(pckh)
+  return apMulti, pckh
+
+
 def eval(gtFramesAll, gtFramesSingle, prFramesAll):
   
   print("# gt frames  :", len(gtFramesAll))
