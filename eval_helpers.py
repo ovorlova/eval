@@ -132,7 +132,7 @@ def getMotHeader():
 
 def getCum(vals):
     cum = []; n = -1
-    cum += [(vals[[Joint().head_top,      Joint().pelvis,        Joint().throax, Joint().upper_neck],0].mean())]
+    cum += [(vals[[Joint().head_top,       Joint().upper_neck],0].mean())]
     cum += [(vals[[Joint().right_shoulder,Joint().left_shoulder],0].mean())]
     cum += [(vals[[Joint().right_elbow,   Joint().left_elbow   ],0].mean())]
     cum += [(vals[[Joint().right_wrist,   Joint().left_wrist   ],0].mean())]
@@ -911,8 +911,9 @@ def turnToPCKhDict(pckAll):
     return dict(zip(names, pckh))
 
 def turnToAPDict(apAll): 
+    vals = getCum(apAll)
     names = ['head', 'shoulder', 'elbow', 'wrist', 'hip', 'knee', 'ankle', 'total']
-    ap = [apAll[i][0] for i in range(len(apAll))]
+    ap = [vals[i] for i in range(len(vals))]
     return dict(zip(names, ap))
 
 def printResults(dct):
