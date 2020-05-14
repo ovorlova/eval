@@ -25,8 +25,6 @@ def parseArgs():
 
 
 def pseudo_eval(gtFramesSingle, prFramesAll, gtMulti, prMulti):
-  print("# gt frames  :", len(gtFramesAll))
-  print("# pred frames:", len(prFramesAll))
 
   print("Evaluation of per-frame multi-person pose estimation... (multi preds)")
   apMultiAll,preAll,recAll = evaluateAP(gtMulti, prMulti)
@@ -111,6 +109,7 @@ def main():
 
 #if __name__ == "__main__":
 #   main()
+
 
 
 
