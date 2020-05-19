@@ -4,7 +4,6 @@ import sys
 import os
 import json
 import glob
-from convert import convert_videos
 import json
 
 MIN_SCORE = -9999
@@ -98,35 +97,6 @@ def getHeader():
     strHeader += " Knee &"
     strHeader += " Ankl &"
     strHeader += " Total%s" % ("\\"+"\\")
-    return strHeader
-
-
-def getMotHeader():
-    strHeader = "&"
-    strHeader += " MOTA &"
-    strHeader += " MOTA &"
-    strHeader += " MOTA &"
-    strHeader += " MOTA &"
-    strHeader += " MOTA &"
-    strHeader += " MOTA &"
-    strHeader += " MOTA &"
-    strHeader += " MOTA &"
-    strHeader += " MOTP &"
-    strHeader += " Prec &"
-    strHeader += " Rec  %s\n" % ("\\"+"\\")
-    strHeader += "&"
-    strHeader += " Head &"
-    strHeader += " Shou &"
-    strHeader += " Elb  &"
-    strHeader += " Wri  &"
-    strHeader += " Hip  &"
-    strHeader += " Knee &"
-    strHeader += " Ankl &"
-    strHeader += " Total&"
-    strHeader += " Total&"
-    strHeader += " Total&"
-    strHeader += " Total%s" % ("\\"+"\\")
-
     return strHeader
 
 

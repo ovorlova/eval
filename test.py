@@ -1,5 +1,5 @@
 import argparse
-from evaluate import pseudo_eval
+from evaluate import eval
 from eval_helpers import *
 import json
 import matplotlib.pyplot as plt
@@ -15,7 +15,7 @@ def parseArgs():
     parser.add_argument("--test_k", action="store_true",
                         help="Test with max test_k_max output objects")
     parser.add_argument("--test_k_max", type=int, default=11,
-                        help="Evaluation of video-based  multi-person pose tracking using MOT metrics")
+                        help="The maximum value to test")
     parser.add_argument("--test_score", action="store_true",
                         help="Test with different scores")
     parser.add_argument("--test_score_step", type=float, default=0.05,
@@ -68,7 +68,7 @@ def convert_eval_format(test_score=False, score_=0.0, min_for_score=0, multi=Fal
     return final_lst
 
 def run_eval(test=False, test_score=False, score=0.0, min_for_score=0, multi=False, test_k=False, k_=11):
-    return pseudo_eval(gtFramesSingle, convert_eval_format(score_=score,
+    return eval(gtFramesSingle, convert_eval_format(score_=score,
                           test_score=test_score, min_for_score=min_for_score, multi=False, test_k=test_k, k_=k_), 
                           gtFramesMulti, convert_eval_format(score_=score,
                           test_score=test_score, min_for_score=min_for_score, multi=True, test_k=test_k, k_=k_))
@@ -94,27 +94,47 @@ def test_k(K):
     y_AP = list(AP)
     y_PCKh = list(PCKh)
     
-    plt.figure(figsize=(16,8), dpi= 80)
-    plt.suptitle("Test for k, AP")
+    plt.figure(figsize=(24,12), dpi= 80)
+    plt.suptitle("Test for K, AP")
+    
     for i in range(len(y_AP)):
         plt.subplot(3, 3, i+1)
         plt.plot(x, AP[y_AP[i]], label=y_AP[i])
         plt.title(y_AP[i])
-        #plt.xlabel('k')
+        #plt.xlabel('score')
         #plt.ylabel('result')
         #plt.legend()
+        plt.grid()
+    plt.savefig('img_K_AP.png')
 
-    plt.figure(figsize=(16,8), dpi= 80)
-    plt.suptitle("Test for k, PCKh")
-    
+
+    plt.figure(figsize=(24,12), dpi= 80)
+    plt.suptitle("Test for K, PCKh")
+
     for i in range(len(PCKh)):
         plt.subplot(4, 5, i+1)
         plt.plot(x, PCKh[y_PCKh[i]], label=y_PCKh[i])
         plt.title(y_PCKh[i])
-        #plt.xlabel('k')
+        #plt.xlabel('score')
         #plt.ylabel('result')
         #plt.legend()
+        plt.grid()
+    plt.savefig('img_K_PCKh.png')
 
+    plt.figure()
+    #plt.suptitle("Model for different score thresholds")
+    plt.plot(x, PCKh['total'], label='PCKh', marker='o', markersize=3)
+    plt.plot(x, AP['total'], label='AP', marker='o', markersize=3)
+    plt.title('total')
+    plt.xlabel('K predictions')
+    plt.ylabel('metric value')
+    plt.xticks(numpy.arange(1, K+1, 1))
+    plt.grid()
+    plt.legend()
+    #for i in range(len(x)):
+    #  #plt.axvline(x[i], ymin=0, ymax=PCKh['total'][i], linestyle='--', color='green')
+    #  plt.plot([ x[i], x[i]], [0, PCKh['total'][i]], linestyle='--', color='green', alpha=0.6)
+    plt.savefig('img_K_total.png')
 
 
 def test_score(step=0.05, minNum=0):
@@ -137,7 +157,7 @@ def test_score(step=0.05, minNum=0):
     y_AP = list(AP)
     y_PCKh = list(PCKh)
     
-    plt.figure(figsize=(16,8), dpi= 80)
+    plt.figure(figsize=(24,12), dpi= 80)
     plt.suptitle("Test for score, AP")
     
     for i in range(len(y_AP)):
@@ -147,8 +167,10 @@ def test_score(step=0.05, minNum=0):
         #plt.xlabel('score')
         #plt.ylabel('result')
         #plt.legend()
+        plt.grid()
+    plt.savefig('img_score_AP.png')
 
-    plt.figure(figsize=(16,8), dpi= 80)
+    plt.figure(figsize=(24,12), dpi= 80)
     plt.suptitle("Test for score, PCKh")
 
     for i in range(len(PCKh)):
@@ -158,6 +180,23 @@ def test_score(step=0.05, minNum=0):
         #plt.xlabel('score')
         #plt.ylabel('result')
         #plt.legend()
+        plt.grid()
+    plt.savefig('img_score_PCKh.png')
+
+    plt.figure()
+    #plt.suptitle("Test for score, total")
+    plt.plot(x, PCKh['total'], label='PCKh', marker='o', markersize=3)
+    plt.plot(x, AP['total'], label='AP', marker='o', markersize=3)
+    plt.title('total')
+    plt.xlabel('min score')
+    plt.xticks(numpy.arange(0, 1.1, 0.1))
+    plt.ylabel('metric value')
+    plt.grid()
+    plt.legend()
+    #for i in range(len(x)):
+    #  #plt.axvline(x[i], ymin=0, ymax=PCKh['total'][i], linestyle='--', color='green')
+    #  plt.plot([ x[i], x[i]], [0, PCKh['total'][i]], linestyle='--', color='green', alpha=0.6)
+    plt.savefig('img_score_PCKh_total.png')
 
 
 args = parseArgs()
@@ -179,4 +218,5 @@ if args.test_score == True:
 if args.test_k == True:
     test_k(args.test_k_max)
 
-plt.show()
+#plt.show()
+
